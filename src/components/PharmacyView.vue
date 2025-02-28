@@ -17,9 +17,7 @@ onMounted(() => {
 
 function handleMedAdded(result) {
   if (result.status === 1) {
-    // Tout va bien, la liste a déjà été rechargée par loadMedicaments()
   } else {
-    // Gérer l’erreur (doublon, etc.)
   }
 }
 
