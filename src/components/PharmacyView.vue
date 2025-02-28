@@ -2,6 +2,7 @@
 import { onMounted, ref, computed } from 'vue'
 import {
   medicaments,
+  loading,
   loadMedicaments,
   deleteMedicament,
   updateMedicament
@@ -11,8 +12,8 @@ import AddMedicamentForm from './AddMedicamentForm.vue'
 
 const searchTerm = ref('')
 
-onMounted(() => {
-  loadMedicaments()
+onMounted(async () => {
+  await loadMedicaments()
 })
 
 function handleMedAdded(result) {
@@ -21,11 +22,8 @@ function handleMedAdded(result) {
   }
 }
 
-
 function handleDelete(med) {
   deleteMedicament(med.id)
-  const i = medicaments.value.findIndex(x => x.id === med.id)
-  if (i !== -1) medicaments.value.splice(i, 1)
 }
 
 async function handleIncrement(med) {
@@ -52,27 +50,57 @@ const filteredMedicaments = computed(() => {
 </script>
 
 <template>
-  <input v-model="searchTerm" placeholder="Recherche" />
-  <ul>
-    <li v-for="med in filteredMedicaments" :key="med.id">
-      {{ med.denomination }} ({{ med.formePharmaceutique }}) - Qte: {{ med.qte }}
-      <button @click="handleIncrement(med)">+1</button>
-      <button @click="handleDecrement(med)">-1</button>
-      <button @click="handleDelete(med)">Supprimer</button>
-    </li>
-  </ul>
-  <AddMedicamentForm @med-added="handleMedAdded" />
+  <v-container>
+    <v-card class="mx-auto my-4">
+      <v-card-title>
+        <v-text-field
+            v-model="searchTerm"
+            prepend-icon="mdi-magnify"
+            label="Rechercher un médicament"
+            single-line
+            variant="outlined"
+            hide-details
+            density="compact"
+        ></v-text-field>
+      </v-card-title>
+
+      <v-data-table
+          :headers="[
+        { title: 'Dénomination', key: 'denomination' },
+        { title: 'Forme', key: 'formePharmaceutique' },
+        { title: 'Quantité', key: 'qte' },
+        { title: 'Actions', key: 'actions', sortable: false }
+      ]"
+          :items="filteredMedicaments"
+          :loading="loading"
+      >
+        <template v-slot:item.actions="{ item }">
+          <v-btn size="small" color="primary" icon class="mr-2" @click="handleIncrement(item)">
+            <v-icon>mdi-plus</v-icon>
+          </v-btn>
+          <v-btn size="small" color="warning" icon class="mr-2" @click="handleDecrement(item)">
+            <v-icon>mdi-minus</v-icon>
+          </v-btn>
+          <v-btn size="small" color="error" icon @click="handleDelete(item)">
+            <v-icon>mdi-delete</v-icon>
+          </v-btn>
+        </template>
+      </v-data-table>
+
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn color="primary" prepend-icon="mdi-plus">
+          Ajouter un médicament
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+
+    <AddMedicamentForm @med-added="handleMedAdded" />
+  </v-container>
 </template>
 
 <style scoped>
-ul {
-  list-style: none;
-  padding: 0;
-}
-li {
-  margin: 8px 0;
-}
-button {
-  margin-left: 8px;
+.v-btn {
+  margin: 0 4px;
 }
 </style>
