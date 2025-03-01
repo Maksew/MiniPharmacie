@@ -9,14 +9,26 @@ import {
 } from '../composables/usePharmacy.js'
 
 import AddMedicamentForm from './AddMedicamentForm.vue'
+import EditMedicamentForm from './EditMedicamentForm.vue'
 
 const searchTerm = ref('')
 const deleteDialog = ref(false)
 const medicamentToDelete = ref(null)
 
+const editDialog = ref(false)
+const currentMedicament = ref(null)
+
 onMounted(async () => {
   await loadMedicaments()
 })
+
+function openEditDialog(med) {
+  currentMedicament.value = med
+  editDialog.value = true
+}
+
+function handleMedUpdated(result) {
+}
 
 function handleMedAdded(result) {
   if (result.status === 1) {
@@ -91,6 +103,9 @@ const filteredMedicaments = computed(() => {
           :loading="loading"
       >
         <template v-slot:item.actions="{ item }">
+          <v-btn size="small" color="info" icon class="mr-2" @click="openEditDialog(item)">
+            <v-icon>mdi-pencil</v-icon>
+          </v-btn>
           <v-btn size="small" color="primary" icon class="mr-2" @click="handleIncrement(item)">
             <v-icon>mdi-plus</v-icon>
           </v-btn>
@@ -102,6 +117,12 @@ const filteredMedicaments = computed(() => {
           </v-btn>
         </template>
       </v-data-table>
+
+      <EditMedicamentForm
+          :medicament="currentMedicament"
+          v-model:isOpen="editDialog"
+          @med-updated="handleMedUpdated"
+      />
 
       <v-dialog v-model="deleteDialog" max-width="400px">
         <v-card>
