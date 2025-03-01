@@ -5,7 +5,8 @@ import {
   loading,
   loadMedicaments,
   deleteMedicament,
-  updateMedicament
+  updateMedicament,
+  getFullImageUrl
 } from '../composables/usePharmacy.js'
 
 import AddMedicamentForm from './AddMedicamentForm.vue'
@@ -18,26 +19,37 @@ const medicamentToDelete = ref(null)
 const editDialog = ref(false)
 const currentMedicament = ref(null)
 
+const itemsPerPage = ref(10)
+const itemsPerPageOptions = [
+  { value: 10, title: '10' },
+  { value: 25, title: '25' },
+  { value: 50, title: '50' },
+  { value: 100, title: '100' },
+  { value: -1, title: 'Tous' },
+]
+
 onMounted(async () => {
+  console.log("Composant monté, chargement des médicaments...")
   await loadMedicaments()
+  console.log("Médicaments chargés:", medicaments.value)
 })
 
 function openEditDialog(med) {
-  currentMedicament.value = med
+  console.log("Ouverture du formulaire d'édition avec:", med)
+  currentMedicament.value = {...med}
   editDialog.value = true
 }
 
 function handleMedUpdated(result) {
+  console.log("Médicament mis à jour:", result)
+  loadMedicaments()
 }
 
 function handleMedAdded(result) {
+  console.log("Médicament ajouté:", result)
   if (result.status === 1) {
-  } else {
+    loadMedicaments()
   }
-}
-
-function handleDelete(med) {
-  deleteMedicament(med.id)
 }
 
 function openDeleteDialog(med) {
@@ -75,12 +87,14 @@ const filteredMedicaments = computed(() => {
   )
 })
 
-const customItemsPerPageText = 'Éléments par page'
-const customPaginationInfo = value => {
-  const { itemsLength, pageStart, pageStop } = value
-  return `${pageStart}-${pageStop} sur ${itemsLength}`
+function getImageUrl(med) {
+  if (!med.photo) return null
+  return getFullImageUrl(med.photo)
 }
 
+function handleImageError(item) {
+  console.log(`Erreur de chargement d'image pour ${item.denomination}, utilisation du fallback`)
+}
 </script>
 
 <template>
@@ -100,22 +114,41 @@ const customPaginationInfo = value => {
 
       <v-data-table
           :headers="[
-        { title: 'Dénomination', key: 'denomination' },
-        { title: 'Forme', key: 'formepharmaceutique' },
-        { title: 'Quantité', key: 'qte' },
-        { title: 'Actions', key: 'actions', sortable: false }
-      ]"
+            { title: 'Image', key: 'photo', sortable: false, align: 'center', width: '80px' },
+            { title: 'Dénomination', key: 'denomination' },
+            { title: 'Forme', key: 'formepharmaceutique' },
+            { title: 'Quantité', key: 'qte' },
+            { title: 'Actions', key: 'actions', sortable: false, align: 'center' }
+          ]"
           :items="filteredMedicaments"
           :loading="loading"
-          :items-per-page-text="customItemsPerPageText"
-          :custom-items-per-page-options="[
-            { value: 5, title: '5' },
-            { value: 10, title: '10' },
-            { value: 15, title: '15' },
-            { value: -1, title: 'Tous' }
-          ]"
-          :pagination-info="customPaginationInfo"
+          :items-per-page="itemsPerPage"
+          :items-per-page-options="itemsPerPageOptions"
       >
+        <template v-slot:item.photo="{ item }">
+          <v-avatar size="50" rounded color="grey-lighten-2">
+            <v-img
+                :src="getImageUrl(item)"
+                :alt="item.denomination"
+                cover
+                :aspect-ratio="1"
+                class="bg-grey-lighten-2"
+                @error="handleImageError(item)"
+            >
+              <template v-slot:placeholder>
+                <v-row class="fill-height ma-0" align="center" justify="center">
+                  <v-progress-circular indeterminate color="grey-darken-2"></v-progress-circular>
+                </v-row>
+              </template>
+              <template v-slot:error>
+                <v-row class="fill-height ma-0" align="center" justify="center">
+                  <v-icon icon="mdi-image-off" color="grey-darken-2"></v-icon>
+                </v-row>
+              </template>
+            </v-img>
+          </v-avatar>
+        </template>
+
         <template v-slot:item.actions="{ item }">
           <v-tooltip location="top" text="Modifier">
             <template v-slot:activator="{ props }">
@@ -177,12 +210,22 @@ const customPaginationInfo = value => {
             </template>
           </v-tooltip>
         </template>
+
+        <template v-slot:footer.page-text="{ pageStart, pageStop, itemsLength }">
+          {{ pageStart }}-{{ pageStop }} sur {{ itemsLength }}
+        </template>
+
+        <template v-slot:footer.items-per-page-text>
+          Éléments par page
+        </template>
       </v-data-table>
 
       <EditMedicamentForm
+          v-if="currentMedicament"
           :medicament="currentMedicament"
           v-model:isOpen="editDialog"
           @med-updated="handleMedUpdated"
+          @close="editDialog = false"
       />
 
       <v-dialog v-model="deleteDialog" max-width="400px">
