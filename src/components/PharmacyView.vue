@@ -11,6 +11,8 @@ import {
 import AddMedicamentForm from './AddMedicamentForm.vue'
 
 const searchTerm = ref('')
+const deleteDialog = ref(false)
+const medicamentToDelete = ref(null)
 
 onMounted(async () => {
   await loadMedicaments()
@@ -24,6 +26,19 @@ function handleMedAdded(result) {
 
 function handleDelete(med) {
   deleteMedicament(med.id)
+}
+
+function openDeleteDialog(med) {
+  medicamentToDelete.value = med
+  deleteDialog.value = true
+}
+
+async function confirmDelete() {
+  if (medicamentToDelete.value) {
+    await deleteMedicament(medicamentToDelete.value.id)
+    deleteDialog.value = false
+    medicamentToDelete.value = null
+  }
 }
 
 async function handleIncrement(med) {
@@ -47,6 +62,7 @@ const filteredMedicaments = computed(() => {
       m.formePharmaceutique.toLowerCase().includes(t)
   )
 })
+
 </script>
 
 <template>
@@ -81,21 +97,39 @@ const filteredMedicaments = computed(() => {
           <v-btn size="small" color="warning" icon class="mr-2" @click="handleDecrement(item)">
             <v-icon>mdi-minus</v-icon>
           </v-btn>
-          <v-btn size="small" color="error" icon @click="handleDelete(item)">
+          <v-btn size="small" color="error" icon @click="openDeleteDialog(item)">
             <v-icon>mdi-delete</v-icon>
           </v-btn>
         </template>
       </v-data-table>
 
+      <v-dialog v-model="deleteDialog" max-width="400px">
+        <v-card>
+          <v-card-title class="text-h5">Confirmer la suppression</v-card-title>
+          <v-card-text>
+            Êtes-vous sûr de vouloir supprimer ce médicament ? Cette action est irréversible.
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="blue-darken-1" variant="text" @click="deleteDialog = false">
+              Annuler
+            </v-btn>
+            <v-btn color="red-darken-1" variant="text" @click="confirmDelete">
+              Supprimer
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="primary" prepend-icon="mdi-plus">
+        <v-btn color="primary" prepend-icon="mdi-plus" @click="$refs.addForm.openDialog()">
           Ajouter un médicament
         </v-btn>
       </v-card-actions>
     </v-card>
 
-    <AddMedicamentForm @med-added="handleMedAdded" />
+    <AddMedicamentForm ref="addForm" @med-added="handleMedAdded" />
   </v-container>
 </template>
 
