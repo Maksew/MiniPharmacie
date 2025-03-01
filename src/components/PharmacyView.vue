@@ -71,9 +71,15 @@ const filteredMedicaments = computed(() => {
   const t = searchTerm.value.toLowerCase()
   return medicaments.value.filter(m =>
       m.denomination.toLowerCase().includes(t) ||
-      m.formePharmaceutique.toLowerCase().includes(t)
+      (m.formepharmaceutique && m.formepharmaceutique.toLowerCase().includes(t))
   )
 })
+
+const customItemsPerPageText = 'Éléments par page'
+const customPaginationInfo = value => {
+  const { itemsLength, pageStart, pageStop } = value
+  return `${pageStart}-${pageStop} sur ${itemsLength}`
+}
 
 </script>
 
@@ -101,20 +107,75 @@ const filteredMedicaments = computed(() => {
       ]"
           :items="filteredMedicaments"
           :loading="loading"
+          :items-per-page-text="customItemsPerPageText"
+          :custom-items-per-page-options="[
+            { value: 5, title: '5' },
+            { value: 10, title: '10' },
+            { value: 15, title: '15' },
+            { value: -1, title: 'Tous' }
+          ]"
+          :pagination-info="customPaginationInfo"
       >
         <template v-slot:item.actions="{ item }">
-          <v-btn size="small" color="info" icon class="mr-2" @click="openEditDialog(item)">
-            <v-icon>mdi-pencil</v-icon>
-          </v-btn>
-          <v-btn size="small" color="primary" icon class="mr-2" @click="handleIncrement(item)">
-            <v-icon>mdi-plus</v-icon>
-          </v-btn>
-          <v-btn size="small" color="warning" icon class="mr-2" @click="handleDecrement(item)">
-            <v-icon>mdi-minus</v-icon>
-          </v-btn>
-          <v-btn size="small" color="error" icon @click="openDeleteDialog(item)">
-            <v-icon>mdi-delete</v-icon>
-          </v-btn>
+          <v-tooltip location="top" text="Modifier">
+            <template v-slot:activator="{ props }">
+              <v-btn
+                  size="small"
+                  color="info"
+                  icon
+                  class="mr-2"
+                  v-bind="props"
+                  @click="openEditDialog(item)"
+              >
+                <v-icon>mdi-pencil</v-icon>
+              </v-btn>
+            </template>
+          </v-tooltip>
+
+          <v-tooltip location="top" text="Ajouter 1 unité">
+            <template v-slot:activator="{ props }">
+              <v-btn
+                  size="small"
+                  color="primary"
+                  icon
+                  class="mr-2"
+                  v-bind="props"
+                  @click="handleIncrement(item)"
+              >
+                <v-icon>mdi-plus</v-icon>
+              </v-btn>
+            </template>
+          </v-tooltip>
+
+          <v-tooltip location="top" text="Retirer 1 unité">
+            <template v-slot:activator="{ props }">
+              <v-btn
+                  size="small"
+                  color="warning"
+                  icon
+                  class="mr-2"
+                  v-bind="props"
+                  @click="handleDecrement(item)"
+                  :disabled="item.qte <= 0"
+              >
+                <v-icon>mdi-minus</v-icon>
+              </v-btn>
+            </template>
+          </v-tooltip>
+
+          <v-tooltip location="top" text="Supprimer">
+            <template v-slot:activator="{ props }">
+              <v-btn
+                  size="small"
+                  color="error"
+                  icon
+                  v-bind="props"
+                  @click="openDeleteDialog(item)"
+              >
+                <v-icon>mdi-delete</v-icon>
+              </v-btn>
+            </template>
+          </v-tooltip>
         </template>
       </v-data-table>
 

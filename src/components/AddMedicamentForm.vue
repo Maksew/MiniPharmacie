@@ -71,6 +71,8 @@ defineExpose({ openDialog })
                     v-model="newForme"
                     label="Forme pharmaceutique"
                     required
+                    hint="Ex: comprimé, sirop, gélules, etc."
+                    persistent-hint
                 ></v-text-field>
               </v-col>
 
@@ -80,6 +82,7 @@ defineExpose({ openDialog })
                     label="Quantité"
                     type="number"
                     required
+                    min="1"
                 ></v-text-field>
               </v-col>
             </v-row>

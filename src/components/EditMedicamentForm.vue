@@ -29,7 +29,7 @@ const loading = ref(false)
 function initialize() {
   if (props.medicament) {
     denomination.value = props.medicament.denomination
-    forme.value = props.medicament.formePharmaceutique
+    forme.value = props.medicament.formepharmaceutique
     qte.value = props.medicament.qte
   }
 }
@@ -93,6 +93,7 @@ async function handleUpdate() {
                   label="Quantité"
                   type="number"
                   required
+                  min="0"
               ></v-text-field>
             </v-col>
           </v-row>
