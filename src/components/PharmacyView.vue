@@ -95,7 +95,7 @@ const filteredMedicaments = computed(() => {
       <v-data-table
           :headers="[
         { title: 'Dénomination', key: 'denomination' },
-        { title: 'Forme', key: 'formePharmaceutique' },
+        { title: 'Forme', key: 'formepharmaceutique' },
         { title: 'Quantité', key: 'qte' },
         { title: 'Actions', key: 'actions', sortable: false }
       ]"
