@@ -66,16 +66,20 @@ async function confirmDelete() {
 }
 
 async function handleIncrement(med) {
-  const updated = { ...med, qte: med.qte + 1, id: med.id }
+  const updated = { id: med.id, qte: med.qte + 1 }
   const res = await updateMedicament(updated)
-  med.qte = res.qte
+
+  if (res && res.status === 1) {
+    med.qte = med.qte + 1
+  }
 }
 
 async function handleDecrement(med) {
-  if (med.qte > 0) {
-    const updated = { ...med, qte: med.qte - 1, id: med.id }
-    const res = await updateMedicament(updated)
-    med.qte = res.qte
+  const updated = { id: med.id, qte: med.qte - 1 }
+  const res = await updateMedicament(updated)
+
+  if (res && res.status === 1) {
+    med.qte = med.qte - 1
   }
 }
 
@@ -128,6 +132,7 @@ function handleImageError(item) {
         <template v-slot:item.photo="{ item }">
           <v-avatar size="50" rounded color="grey-lighten-2">
             <v-img
+                v-if="getImageUrl(item)"
                 :src="getImageUrl(item)"
                 :alt="item.denomination"
                 cover
