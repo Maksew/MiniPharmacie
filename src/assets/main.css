@@ -1,0 +1,67 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --pharmacy-green: #01a94f;
+    --pharmacy-green-light: #5adf92;
+    --pharmacy-green-dark: #017d3a;
+    --pharmacy-blue: #0085c7;
+    --pharmacy-blue-light: #5ebaed;
+    --pharmacy-blue-dark: #006494;
+    --red-color: #D32F2F;
+    --light-grey: #f5f7fa;
+}
+
+body {
+    font-family: 'Nunito', sans-serif;
+    background-color: var(--light-grey);
+}
+
+.v-btn {
+    border-radius: 6px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.3px !important;
+    text-transform: none !important;
+}
+
+.pharmacy-cross {
+    animation: pulse 3s infinite ease-in-out;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.bg-light-grey {
+    background-color: var(--light-grey) !important;
+}
+
+.v-data-table .v-data-table__td {
+    font-weight: 400;
+    color: #424242;
+}
+
+.v-data-table .v-data-table__th {
+    font-weight: 700 !important;
+}
+
+.v-card {
+    border-radius: 8px !important;
+    overflow: hidden;
+}
+
+.v-field {
+    border-radius: 6px !important;
+}
+
+.action-btn {
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+}
+
+.v-dialog .v-card {
+    border-radius: 8px !important;
+    overflow: hidden;
+}

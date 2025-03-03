@@ -21,10 +21,10 @@ const currentMedicament = ref(null)
 
 const itemsPerPage = ref(10)
 const itemsPerPageOptions = [
+  { value: 3, title: '3' },
+  { value: 5, title: '5' },
   { value: 10, title: '10' },
   { value: 25, title: '25' },
-  { value: 50, title: '50' },
-  { value: 100, title: '100' },
   { value: -1, title: 'Tous' },
 ]
 
@@ -103,8 +103,13 @@ function handleImageError(item) {
 
 <template>
   <v-container>
-    <v-card class="mx-auto my-4">
-      <v-card-title>
+    <v-card class="mx-auto my-4 pharmacy-card">
+      <v-card-title class="bg-pharmacy-blue text-white">
+        <v-icon icon="mdi-pill" class="mr-2"></v-icon>
+        Inventaire des médicaments
+      </v-card-title>
+
+      <v-card-text class="pa-4">
         <v-text-field
             v-model="searchTerm"
             prepend-icon="mdi-magnify"
@@ -113,8 +118,9 @@ function handleImageError(item) {
             variant="outlined"
             hide-details
             density="compact"
+            class="mb-4 search-field"
         ></v-text-field>
-      </v-card-title>
+      </v-card-text>
 
       <v-data-table
           :headers="[
@@ -128,9 +134,10 @@ function handleImageError(item) {
           :loading="loading"
           :items-per-page="itemsPerPage"
           :items-per-page-options="itemsPerPageOptions"
+          class="pharmacy-table"
       >
         <template v-slot:item.photo="{ item }">
-          <v-avatar size="50" rounded color="grey-lighten-2">
+          <v-avatar size="50" rounded class="med-image">
             <v-img
                 v-if="getImageUrl(item)"
                 :src="getImageUrl(item)"
@@ -142,78 +149,70 @@ function handleImageError(item) {
             >
               <template v-slot:placeholder>
                 <v-row class="fill-height ma-0" align="center" justify="center">
-                  <v-progress-circular indeterminate color="grey-darken-2"></v-progress-circular>
+                  <v-progress-circular indeterminate color="primary"></v-progress-circular>
                 </v-row>
               </template>
               <template v-slot:error>
                 <v-row class="fill-height ma-0" align="center" justify="center">
-                  <v-icon icon="mdi-image-off" color="grey-darken-2"></v-icon>
+                  <v-icon icon="mdi-pill" color="grey-darken-2"></v-icon>
                 </v-row>
               </template>
             </v-img>
+            <v-icon v-else icon="mdi-pill" color="grey-darken-2"></v-icon>
           </v-avatar>
         </template>
 
         <template v-slot:item.actions="{ item }">
-          <v-tooltip location="top" text="Modifier">
-            <template v-slot:activator="{ props }">
-              <v-btn
-                  size="small"
-                  color="info"
-                  icon
-                  class="mr-2"
-                  v-bind="props"
-                  @click="openEditDialog(item)"
-              >
-                <v-icon>mdi-pencil</v-icon>
-              </v-btn>
-            </template>
-          </v-tooltip>
+          <div class="d-flex justify-center gap-1">
+            <!-- Modifier -->
+            <v-btn
+                size="small"
+                color="pharmacy-blue"
+                icon
+                class="action-btn"
+                @click="openEditDialog(item)"
+            >
+              <v-icon>mdi-pencil-outline</v-icon>
+              <v-tooltip activator="parent" location="top">Modifier</v-tooltip>
+            </v-btn>
 
-          <v-tooltip location="top" text="Ajouter 1 unité">
-            <template v-slot:activator="{ props }">
-              <v-btn
-                  size="small"
-                  color="primary"
-                  icon
-                  class="mr-2"
-                  v-bind="props"
-                  @click="handleIncrement(item)"
-              >
-                <v-icon>mdi-plus</v-icon>
-              </v-btn>
-            </template>
-          </v-tooltip>
+            <!-- Ajouter 1 unité -->
+            <v-btn
+                size="small"
+                color="pharmacy-green"
+                icon
+                class="action-btn"
+                @click="handleIncrement(item)"
+            >
+              <v-icon>mdi-plus-circle-outline</v-icon>
+              <v-tooltip activator="parent" location="top">Ajouter 1 unité</v-tooltip>
+            </v-btn>
 
-          <v-tooltip location="top" text="Retirer 1 unité">
-            <template v-slot:activator="{ props }">
-              <v-btn
-                  size="small"
-                  color="warning"
-                  icon
-                  class="mr-2"
-                  v-bind="props"
-                  @click="handleDecrement(item)"
-                  :disabled="item.qte <= 0"
-              >
-                <v-icon>mdi-minus</v-icon>
-              </v-btn>
-            </template>
-          </v-tooltip>
+            <!-- Retirer 1 unité -->
+            <v-btn
+                size="small"
+                color="amber-darken-2"
+                icon
+                class="action-btn"
+                @click="handleDecrement(item)"
+                :disabled="item.qte <= 0"
+            >
+              <v-icon>mdi-minus-circle-outline</v-icon>
+              <v-tooltip activator="parent" location="top">Retirer 1 unité</v-tooltip>
+            </v-btn>
 
-          <v-tooltip location="top" text="Supprimer">
-            <template v-slot:activator="{ props }">
-              <v-btn
-                  size="small"
-                  color="error"
-                  icon
-                  v-bind="props"
-                  @click="openDeleteDialog(item)"
-              >
-                <v-icon>mdi-delete</v-icon>
-              </v-btn>
-            </template>
-          </v-tooltip>
+            <!-- Supprimer -->
+            <v-btn
+                size="small"
+                color="red-darken-2"
+                icon
+                class="action-btn"
+                @click="openDeleteDialog(item)"
+            >
+              <v-icon>mdi-delete-outline</v-icon>
+              <v-tooltip activator="parent" location="top">Supprimer</v-tooltip>
+            </v-btn>
+          </div>
         </template>
 
         <template v-slot:footer.page-text="{ pageStart, pageStop, itemsLength }">
@@ -235,13 +234,17 @@ function handleImageError(item) {
 
       <v-dialog v-model="deleteDialog" max-width="400px">
         <v-card>
-          <v-card-title class="text-h5">Confirmer la suppression</v-card-title>
-          <v-card-text>
-            Êtes-vous sûr de vouloir supprimer ce médicament ? Cette action est irréversible.
+          <v-card-title class="text-h5 bg-red-darken-1 text-white">
+            <v-icon icon="mdi-alert" class="mr-2"></v-icon>
+            Confirmer la suppression
+          </v-card-title>
+          <v-card-text class="pa-4 pt-4">
+            <p>Êtes-vous sûr de vouloir supprimer ce médicament ?</p>
+            <p class="text-caption text-grey">Cette action est irréversible.</p>
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="blue-darken-1" variant="text" @click="deleteDialog = false">
+            <v-btn color="grey" variant="text" @click="deleteDialog = false">
               Annuler
             </v-btn>
             <v-btn color="red-darken-1" variant="text" @click="confirmDelete">
@@ -251,9 +254,10 @@ function handleImageError(item) {
         </v-card>
       </v-dialog>
 
-      <v-card-actions>
+      <v-card-actions class="pa-4">
         <v-spacer></v-spacer>
-        <v-btn color="primary" prepend-icon="mdi-plus" @click="$refs.addForm.openDialog()">
+        <v-btn color="pharmacy-green" prepend-icon="mdi-plus-circle" @click="$refs.addForm.openDialog()"
+               class="add-med-btn">
           Ajouter un médicament
         </v-btn>
       </v-card-actions>
@@ -264,7 +268,52 @@ function handleImageError(item) {
 </template>
 
 <style scoped>
-.v-btn {
-  margin: 0 4px;
+.pharmacy-card {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+.bg-pharmacy-blue {
+  background-color: var(--pharmacy-blue) !important;
+}
+
+.pharmacy-table {
+  box-shadow: none !important;
+}
+
+.search-field {
+  max-width: 400px;
+}
+
+.action-btn {
+  margin: 0 2px;
+  transition: transform 0.2s;
+}
+
+.action-btn:hover {
+  transform: scale(1.15);
+}
+
+.med-image {
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.add-med-btn {
+  color: white !important;
+  font-weight: 600;
+  background-color: var(--pharmacy-green);
+  border: 1px solid var(--pharmacy-green);
+}
+
+.add-med-btn:hover {
+  background-color: #018a3f ;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+:deep(.v-data-table-header th) {
+  font-weight: 600 !important;
+  background-color: #f0f5fa !important;
 }
 </style>

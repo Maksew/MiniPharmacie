@@ -7,6 +7,7 @@ import { createVuetify } from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import { fr } from 'vuetify/locale'
+import '@mdi/font/css/materialdesignicons.css'
 
 const vuetify = createVuetify({
     components,
@@ -20,11 +21,13 @@ const vuetify = createVuetify({
         themes: {
             light: {
                 colors: {
-                    primary: '#2196F3',
-                    secondary: '#03A9F4',
-                    accent: '#9C27B0',
-                    error: '#fc1313',
-                    info: '#b8f3ff',
+                    primary: '#01a94f',
+                    'pharmacy-green': '#01a94f',
+                    'pharmacy-blue': '#0085c7',
+                    secondary: '#0085c7',
+                    accent: '#1976D2',
+                    error: '#D32F2F',
+                    info: '#0288D1',
                     success: '#4CAF50',
                     warning: '#FB8C00',
                 }
